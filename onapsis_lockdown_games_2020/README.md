@@ -149,7 +149,7 @@ y al final obtenemos el flag.
 
 ## Nivel 3
 
-Abrimos el archivo utilizando la clave Kn0(kin_IntR0_He4veN y nos encontramos con un archivo jar. Si tenemos Java instalado podemos ejecutarlo y ver que se trata del clásico Buscaminas, pero con una dificultad un poco mayor: 160 minas :(
+Abrimos el archivo utilizando la clave `Kn0(kin_IntR0_He4veN` y nos encontramos con un archivo jar. Si tenemos Java instalado podemos ejecutarlo y ver que se trata del clásico Buscaminas, pero con una dificultad un poco mayor: 160 minas :(
 
 Podríamos intentar jugar hasta ganar, pero no soy un gran jugador de buscaminas, así que ni lo intenté. Mi primer idea fue modificar el número de minas para que sea sólo una, pero claro, para hacer esto tenemos que contar con el código de fuente del programa.
 
@@ -159,7 +159,7 @@ En este caso utilicé la herramienta jd-gui. Luego de unos mínimos ajustes (los
 
 Como comenté anteriormente, la primer idea fue reducir el número de bombas de 160 a 1; una vez hecho esto, ejecuté la nueva versión y ocurrió lo siguiente:
 
-![Alt Text](level3_fail.gif)
+![Alt Text](images/level3_fail.gif)
 
 Bueno, éste no fue el resultado esperado, así que me puse a leer el código. Después de un análisis, descubrí que el mapa estaba representado por una matriz, y que cada elemento de la matriz contenía un número que indicaba qué era lo que había realmente en esa celda (una bomba, nada o el número de bombas vecinas). Lo importante acá es notar que la bomba se representa con el número 19.
 
@@ -187,7 +187,7 @@ if (!this.a.inGame) {
 
 De esta forma bastaba sólo con hacer un click, para finalizar el juego exitósamente. Así se ve una vez finalizado:
 
-![Alt Text](level3_success.gif)
+![Alt Text](images/level3_success.gif)
 
 Y obtenemos el flag `ONA{m1n3$...theR3_@re_MiNe5_Ev3ryw4ere!}`.
 
@@ -205,21 +205,21 @@ not stripped :)
 
 Empezamos analizando los strings en busca del flag.
 
-![Alt Text](level4_maze_strings.png)
+![Alt Text](images/level4_maze_strings.png)
 
 Como se puede ver, aparece el string "Great Job, your flag is:". Viendo dónde se usa este string no parece posible (al menos de manera sencilla) obtener el flag. Pero en esta misma lista de strings podemos observar uno muy interesante: "-Debugg". Este string se referencia en la función `main`, más precisamente en el parseo de argumentos.
 
-![Alt Text](level4_debug_compare.png)
+![Alt Text](images/level4_debug_compare.png)
 
 Como se puede ver, en las primeras líneas de la función `main` se determina si la aplicación se está corriendo en modo debug o no. Esto lo hace verificando que se le pase como argumento la palabra "-Debug" (chequea los primeros 6 caracteres) y que el string referenciado por `_STR_DEV` empiece con la letra `T`.
 
 El argumento no es un problema porque se lo pasamos por línea de comandos, pero el string `_STR_DEV` está hardcodeado. Las dos opciones más fáciles para solucionar esto serían:
-* Cambiar la letra `F` de false por una `T`.
+* Cambiar la letra `F` de `FALSE` por una `T`.
 * Modificar el salto condicional que hay luego de la comparación para invertirlo.
 
 Esta última opción fue la elegida.
 
-![Alt Text](level4_patched.png)
+![Alt Text](images/level4_patched.png)
 
 ```sh
 $ ./MazeRuner -Debug
@@ -227,24 +227,24 @@ $ ./MazeRuner -Debug
 
 Bien, ahora podemos ver los caminos por los que debemos movernos y las paredes eléctricas... Pero ya no es fácil distinguir la posición actual. Así que hay que aplicar un nuevo parche para cambiar el verde (`\x1B[0;32m`) por el blanco (`\x1B[0;37m`):
 
-![Alt Text](level4_colors.png)
+![Alt Text](images/level4_colors.png)
 
 Ya se puede distinguir claramente la posición actual, sólo falta buscar el camino más corto y...
 
-![Alt Text](level4_debug.png)
+![Alt Text](images/level4_debug.png)
 
 Ups... Veamos dónde se hace referencia a ese string `<place_info_in_product_version>` en el código:
 
-![Alt Text](level4_what.png)
+![Alt Text](images/level4_what.png)
 
 Remarcado en amarillo en la parte superior se puede ver el salto. Si se toma el camino de la izquierda se imprime el string anterior, si se toma el camino de la derecha se imprime ¿el flag?. Veamos qué pasa invirtiendo ese salto:
 
-![Alt Text](level4_patched2.png)
+![Alt Text](images/level4_patched2.png)
 
 ```sh
 $ ./MazeRuner -Debug
 ```
-![Alt Text](level4_success.gif)
+![Alt Text](images/level4_success.gif)
 
 Y llegamos al flag `ONA{1_tr0pez0n_!=_ca1d4?}`.
 
